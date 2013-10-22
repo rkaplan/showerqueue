@@ -27,7 +27,7 @@
             if (err){
               return next(err);
             }
-            var message = "Awesome! You are " + data.quePos + " in line. I'll let you know when a shower is ready.";
+            var message = "Awesome! You are " + data.queuePos + " in line. I'll let you know when a shower is ready.";
             if (data.queuePos <= data.capacity){
               message = "It's your lucky day! There's an open shower, and it's all yours now. Have fun!";
             }
@@ -37,7 +37,7 @@
               body: message
             });
           });
-        } else if (body === "Done"){
+        } else if (body === "DONE"){
           controller.dequeueUser(number, function(err, nextUser){
             if (err){
               return next(err);
