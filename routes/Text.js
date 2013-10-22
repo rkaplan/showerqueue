@@ -15,7 +15,6 @@
   twilio = twilio(conf.get("twilio:accountId"), conf.get("twilio:authToken"));
 
   handlePost = function(req, res, next){
-    console.log("happening", req._schemas);
     var controller = new Controller(req._schemas);
 
     var number = req.body.From;
@@ -24,8 +23,42 @@
         var body = req.body.Body.replace(/\s+/g, '');
         body     = body.toUpperCase();
         if (body === "SHOWER"){
+          controller.enqueueUser(number, function(err, data){
+            if (err){
+              return next(err);
+            }
+            var message = "Awesome! You are " + data.quePos + " in line. I'll let you know when a shower is ready.";
+            if (data.queuePos <= data.capacity){
+              message = "It's your lucky day! There's an open shower, and it's all yours now. Have fun!";
+            }
+            twilio.sendMessage({
+              to: number,
+              from: OUR_NUMBER,
+              body: message
+            });
+          });
         } else if (body === "Done"){
+          controller.dequeueUser(number, function(err, nextUser){
+            if (err){
+              return next(err);
+            }
+            twilio.sendMessage({
+              to: number,
+              from: OUR_NUMBER,
+              body: "Thanks. Have a nice day!"
+            });
+            twilio.sendMessage({
+              to: nextUser.phoneNumber,
+              from: OUR_NUMBER,
+              body: "Good news! It's your turn to shower! Please remember to text me 'done' when you're done, so I can keep the line moving."
+            });
+          });
         } else {
+          twilio.sendMessage({
+            to: number,
+            from: OUR_NUMBER,
+            body: "Sorry. One of our programmers is lazy, and I only understand two words. Please send me 'shower' to sign up for a shower, or 'done' if you're done with your shower"
+          });
         }
       } else {
         return createUser(req, res, next);
@@ -128,7 +161,6 @@
       cookie.user.sex = "boy";
       user = cookie.user;
       controller.createUser(user.name, req.body.From, user.dorm, user.floor, user.sex, function(err, user){
-        console.log("made user", err, user);
         res.clearCookie("shower");
         return res.send("Hello");
       });
@@ -142,7 +174,6 @@
       cookie.user.sex = "girl";
       user = cookie.user;
       controller.createUser(user.name, req.body.From, user.dorm, user.floor, user.sex, function(err, user){
-        console.log("made user", err, user);
         res.clearCookie("shower");
         return res.send("Hello");
       });

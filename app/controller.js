@@ -22,8 +22,8 @@
         else {
           return callback(null, true);
         }
-      })
-    }
+      });
+    };
 
     // create a user object in the database
     this.createUser = function(name, number, dorm, floor, sex, callback) {
@@ -63,7 +63,8 @@
         showerQueue.save();
 
         return callback(null, {
-          queuePos: showerQueue.queue.length()
+          queuePos: showerQueue.queue.length(),
+          capacity: showerQueue.capacity
         });
       })
     }
