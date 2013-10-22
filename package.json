@@ -9,6 +9,8 @@
     "express": "3.2.5",
     "jade": "*",
     "underscore": "1.5.x",
-    "nconf": "0.6.x"
+    "nconf": "0.6.x",
+    "twilio": "1.3.x",
+    "async": "0.2.x"
   }
 }
