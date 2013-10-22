@@ -37,13 +37,17 @@
     console.log("got text", cookie.state);
     // remove all whitespace from the body
     if (_.isUndefined(state) || _.isNull(state)){
+      console.log("no state");
       twilio.sendMessage({
         to: req.body.from,
         from: OUR_NUMBER,
         body: "Welcome to the Shower Master. What's your name?"
+      }, function(err){
+        console.log("sent", err);
       });
       cookie.state = "name";
     } else if (state === "name"){
+      console.log("name", req.body.Body);
       var name = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
         to: req.body.from,
@@ -57,6 +61,7 @@
       };
       cookie.user = user;
     } else if (state === "dorm"){
+      console.log("dorm", req.body.Body);
       var dorm = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
         to: req.body.from,
@@ -66,6 +71,7 @@
       cookie.state     = "floor";
       cookie.user.dorm = dorm;
     } else if (state === "floor"){
+      console.log("floor", req.body.Body);
       var floor = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
         to: req.body.from,
@@ -76,6 +82,7 @@
       cookie.state      = "sex";
       cookie.user.floor = floor;
     } else if (state === "sex"){
+      console.log("sex", req.body.Body);
       var sex = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
         to: req.body.from,
