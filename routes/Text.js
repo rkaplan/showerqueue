@@ -28,12 +28,15 @@
   };
 
   createUser = function(req, res, next){
-    var cookie = req.cookies.shower;
-    var state  = cookie.state;
+    var cookie = req.cookies.shower, state;
+    if (!cookie){
+      cookie = {};
+    } else {
+      state  = cookie.state;
+    }
     console.log("got text", cookie.state);
     // remove all whitespace from the body
     if (_.isUndefined(state) || _.isNull(state)){
-      cookie = {};
       twilio.sendMessage({
         to: req.body.from,
         from: OUR_NUMBER,
