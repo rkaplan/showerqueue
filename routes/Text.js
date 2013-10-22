@@ -19,12 +19,7 @@
     var controller = new Controller(req._schemas);
 
     var number = req.body.number;
-    var isUser = false;
-    controller.createUser("Jason", "2035718834", "Soto", "3", "boy", function(err, user){
-      console.log("made user", err, user);
-      return res.send();
-    });
-    /*controller.numberExists(number, function(err, isUser){
+    controller.numberExists(number, function(err, isUser){
       if (isUser){
         var body = req.body.Body.replace(/\s+/g, '');
         body     = body.toUpperCase();
@@ -35,7 +30,7 @@
       } else {
         return createUser(req, res, next);
       }
-    });*/
+    });
   };
 
   createUser = function(req, res, next){
