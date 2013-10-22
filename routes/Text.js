@@ -34,7 +34,7 @@
     } else {
       state  = cookie.state;
     }
-    console.log("got text", cookie.state);
+    console.log("got text", cookie, req.cookies);
     // remove all whitespace from the body
     if (_.isUndefined(state) || _.isNull(state)){
       console.log("no state", req.body.Body);
@@ -87,13 +87,14 @@
       twilio.sendMessage({
         to: req.body.From,
         from: OUR_NUMBER,
-        body: "Alright, you are ready to get your shower on." +
+        body: "Alright, you're ready to get your shower on." +
               "Whenever you want to take a shower just text shower to me. Have fun!"
       });
       console.log("Creating user", cookie.user);
     }
+    console.log("saving", cookie);
     res.cookie("shower", cookie);
-    return res.send();
+    return res.send("Hi Twilio.");
   };
 
   dispatch = {POST: handlePost};
