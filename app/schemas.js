@@ -17,7 +17,7 @@
   var ShowerQueue = new Schema({
     queue: [ObjectId],
     dorm: String,
-    floor: String,
+    floor: Number,
     sex: String,
     capacity: Number
   });
