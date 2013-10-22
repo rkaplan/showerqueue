@@ -48,7 +48,7 @@
       cookie.state = "name";
     } else if (state === "name"){
       console.log("name", req.body.Body);
-      var name = req.body.Body.replace(/\s+/g, '');
+      var name = req.body.Body;
       twilio.sendMessage({
         to: req.body.From,
         from: OUR_NUMBER,
@@ -82,15 +82,30 @@
       cookie.state      = "sex";
       cookie.user.floor = floor;
     } else if (state === "sex"){
-      console.log("sex", req.body.Body);
       var sex = req.body.Body.replace(/\s+/g, '');
-      twilio.sendMessage({
-        to: req.body.From,
-        from: OUR_NUMBER,
-        body: "Alright, you're ready to get your shower on." +
-              "Whenever you want to take a shower just text shower to me. Have fun!"
-      });
-      console.log("Creating user", cookie.user);
+      sex     = sex.toUpperCase();
+      if (sex === "BOY"){
+        twilio.sendMessage({
+          to: req.body.From,
+          from: OUR_NUMBER,
+          body: "Alright man, you're ready to get your shower on." +
+                "Whenever you want to take a shower just text shower to me. Have fun!"
+        });
+        console.log("Creating user", cookie.user);
+      } else if (sex === "GIRL"){
+        twilio.sendMessage({
+          to: req.body.From,
+          from: OUR_NUMBER,
+          body: "Alright girl, you're ready to get your shower on." +
+                "Whenever you want to take a shower just text shower to me. Have fun!"
+        });
+      } else {
+        twilio.sendMessage({
+          to: req.body.From,
+          from: OUR_NUMBER,
+          body: "Sorry, I don't know those words. Please respond with either boy or girl."
+        });
+      }
     }
     console.log("saving", cookie);
     res.cookie("shower", cookie);
