@@ -140,7 +140,7 @@
         if (err || !user) {
           return callback(err);
         }
-
+        console.log("getting", user.showerQueue);
         schemas.ShowerQueue.findOne({
           _id: user.showerQueue
         }, function(err, showerQueue) {
