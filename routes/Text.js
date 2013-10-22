@@ -8,6 +8,7 @@
       dispatch, handler,
       handlePost,
       createUser,
+      askForName, askForDorm, askForFloor, askForSex, setupUser,
       OUR_NUMBER = conf.get("twilio:number");
 
   // setup twilio
@@ -34,91 +35,114 @@
     } else {
       state  = cookie.state;
     }
-    console.log("got text", cookie, req.cookies);
-    // remove all whitespace from the body
-    if (_.isUndefined(state) || _.isNull(state)){
-      console.log("no state", req.body.Body);
-      twilio.sendMessage({
-        to: req.body.From,
-        from: OUR_NUMBER,
-        body: "Welcome to the Shower Master. What's your name?"
-      }, function(err){
-        console.log("sent", err);
-      });
-      cookie.state = "name";
-    } else if (state === "name"){
-      console.log("name", req.body.Body);
-      var name = req.body.Body;
-      twilio.sendMessage({
-        to: req.body.From,
-        from: OUR_NUMBER,
-        body: "Awesome. Nice to meet you " + name + ". I'm THE SHOWER MASTER." +
-              "Let's get this started. What dorm are you in?"
-      });
-      cookie.state = "dorm";
-      user = {
-        name: name
-      };
-      cookie.user = user;
-    } else if (state === "dorm"){
-      console.log("dorm", req.body.Body);
-      var dorm = req.body.Body.replace(/\s+/g, '');
-      twilio.sendMessage({
-        to: req.body.From,
-        from: OUR_NUMBER,
-        body: "Nice!" + dorm + " is pretty cool. What floor you on bro?"
-      });
-      cookie.state     = "floor";
-      cookie.user.dorm = dorm;
-    } else if (state === "floor"){
-      console.log("floor", req.body.Body);
-      var floor = req.body.Body.replace(/\s+/g, '');
-      twilio.sendMessage({
-        to: req.body.From,
-        from: OUR_NUMBER,
-        body: "Cool. One last thing. Are you a boy or a girl?" +
-              "I'm not very smart, so please only respond with the word boy or girl."
-      });
-      cookie.state      = "sex";
-      cookie.user.floor = floor;
-    } else if (state === "sex"){
-      var sex = req.body.Body.replace(/\s+/g, '');
-      sex     = sex.toUpperCase();
-      if (sex === "BOY"){
-        twilio.sendMessage({
-          to: req.body.From,
-          from: OUR_NUMBER,
-          body: "Alright man, you're ready to get your shower on." +
-                "Whenever you want to take a shower just text shower to me. Have fun!"
-        });
-        cookie.user.sex = "boy";
-        user = cookie.user;
-        console.log("Creating user", user);
-        res.clearCookie("shower");
-        return res.send("Hello");
-      } else if (sex === "GIRL"){
-        twilio.sendMessage({
-          to: req.body.From,
-          from: OUR_NUMBER,
-          body: "Alright girl, you're ready to get your shower on." +
-                "Whenever you want to take a shower just text shower to me. Have fun!"
-        });
-        cookie.user.sex = "girl";
-        user = cookie.user;
-        console.log("Creating user", user);
-        res.clearCookie("shower");
-        return res.send("Hello");
-      } else {
-        twilio.sendMessage({
-          to: req.body.From,
-          from: OUR_NUMBER,
-          body: "Sorry, I don't know those words. Please respond with either boy or girl."
-        });
-      }
+    var functions = {
+      name: askForDorm,
+      dorm: askForFloor,
+      floor: askForSex,
+      sex: setupUser
+    };
+    if (_.has(functions, state)){
+      return functions[state](req, res, next);
     }
-    console.log("saving", cookie);
+    askForName(req, res, next);
+  };
+
+  askForName = function(req, res, next){
+    var cookie = {};
+    twilio.sendMessage({
+      to: req.body.From,
+      from: OUR_NUMBER,
+      body: "Welcome to the Shower Master. What's your name?"
+    }, function(err){
+      console.log("sent", err);
+    });
+    cookie.state = "name";
     res.cookie("shower", cookie);
     return res.send("Hi Twilio.");
+  };
+
+  askForDorm = function(req, res, next){
+    var cookie = req.cookies.shower;
+    var name   = req.body.Body;
+    twilio.sendMessage({
+      to: req.body.From,
+      from: OUR_NUMBER,
+      body: "Nice to meet you " + name + ". I'm THE SHOWER MASTER. " +
+            "Let's get this started. What dorm are you in?"
+    });
+    cookie.state = "dorm";
+    var user = {
+      name: name
+    };
+    cookie.user = user;
+    res.cookie("shower", cookie);
+    return res.send("Hi Twilio.");
+  };
+
+  askForFloor = function(req, res, next){
+    var cookie = req.cookies.shower;
+    var dorm = req.body.Body.replace(/\s+/g, '');
+    twilio.sendMessage({
+      to: req.body.From,
+      from: OUR_NUMBER,
+      body: "Nice! " + dorm + " is pretty cool. What floor you on bro?"
+    });
+    cookie.state     = "floor";
+    cookie.user.dorm = dorm;
+    res.cookie("shower", cookie);
+    return res.send("Hi Twilio.");
+  };
+
+  askForSex = function(req, res, next){
+    var cookie = req.cookies.shower;
+    var floor = req.body.Body.replace(/\s+/g, '');
+    twilio.sendMessage({
+      to: req.body.From,
+      from: OUR_NUMBER,
+      body: "Cool. One last thing. Are you a boy or a girl? " +
+            "I'm not very smart, so please only respond with the word boy or girl."
+    });
+    cookie.state      = "sex";
+    cookie.user.floor = floor;
+    res.cookie("shower", cookie);
+    return res.send("Hi Twilio.");
+  };
+
+  setupUser = function(req, res, next){
+    var cookie = req.cookies.shower, user;
+    var sex    = req.body.Body.replace(/\s+/g, '');
+    sex        = sex.toUpperCase();
+    if (sex === "BOY"){
+      twilio.sendMessage({
+        to: req.body.From,
+        from: OUR_NUMBER,
+        body: "Alright man, you're ready to get your shower on. " +
+              "Whenever you want to take a shower just text shower to me. Have fun!"
+      });
+      cookie.user.sex = "boy";
+      user = cookie.user;
+      console.log("Creating user", user);
+      res.clearCookie("shower");
+      return res.send("Hello");
+    } else if (sex === "GIRL"){
+      twilio.sendMessage({
+        to: req.body.From,
+        from: OUR_NUMBER,
+        body: "Alright girl, you're ready to get your shower on. " +
+              "Whenever you want to take a shower just text shower to me. Have fun!"
+      });
+      cookie.user.sex = "girl";
+      user = cookie.user;
+      console.log("Creating user", user);
+      res.clearCookie("shower");
+      return res.send("Hello");
+    } else {
+      twilio.sendMessage({
+        to: req.body.From,
+        from: OUR_NUMBER,
+        body: "Sorry, I don't know those words. Please respond with either boy or girl."
+      });
+    }
   };
 
   dispatch = {POST: handlePost};
