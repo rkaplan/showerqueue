@@ -27,6 +27,7 @@
 
     // create a user object in the database
     this.createUser = function(name, number, dorm, floor, sex, callback) {
+      var self = this;
       console.log("Creating user", dorm, floor, sex);
       this.schemas.ShowerQueue.findOne({
         dorm: dorm,
@@ -37,7 +38,7 @@
           return callback(err || {msg: "No such queue"});
         }
 
-        var user = new this.schemas.User({
+        var user = new self.schemas.User({
           name: name,
           phoneNumber: number,
           dorm: dorm,
@@ -70,6 +71,7 @@
     // remove the user from the shower queue (called when the user is done with their shower)
     // and pass the user who's up next for showering to the callback
     this.dequeueUser = function(userNumber, callback) {
+      var self = this;
       getUserAndShowerQueue(this.schemas, userNumber, function(err, user, showerQueue) {
         if (err) {
           return callback(err);
@@ -88,7 +90,7 @@
 
         if (showerQueue.queue.length() >= showerQueue.capacity) { // someone who was waiting can now shower
           var nextUserId = showerQueue.queue[showerQueue.capacity - 1];
-          this.schemas.User.findOne({ _id: nextUserId }, function(err, user) {
+          self.schemas.User.findOne({ _id: nextUserId }, function(err, user) {
             if (err || !user) {
               return callback(err)
             }

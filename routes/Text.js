@@ -15,17 +15,27 @@
   twilio = twilio(conf.get("twilio:accountId"), conf.get("twilio:authToken"));
 
   handlePost = function(req, res, next){
+    console.log("happening", req._schemas);
     var controller = new Controller(req._schemas);
 
     var number = req.body.number;
     var isUser = false;
-    controller.numberExists(number, function(err, isUser){
+    controller.createUser("Jason", "2035718834", "Soto", "3", "boy", function(err, user){
+      console.log("made user", err, user);
+      return res.send();
+    });
+    /*controller.numberExists(number, function(err, isUser){
       if (isUser){
-
+        var body = req.body.Body.replace(/\s+/g, '');
+        body     = body.toUpperCase();
+        if (body === "SHOWER"){
+        } else if (body === "Done"){
+        } else {
+        }
       } else {
         return createUser(req, res, next);
       }
-    });
+    });*/
   };
 
   createUser = function(req, res, next){
