@@ -40,7 +40,7 @@
       console.log("no state");
       twilio.sendMessage({
         to: req.body.from,
-        from: OUR_NUMBER,
+        From: OUR_NUMBER,
         body: "Welcome to the Shower Master. What's your name?"
       }, function(err){
         console.log("sent", err);
@@ -65,7 +65,7 @@
       var dorm = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
         to: req.body.from,
-        from: OUR_NUMBER,
+        From: OUR_NUMBER,
         body: "Nice!" + dorm + " is pretty cool. What floor you on bro?"
       });
       cookie.state     = "floor";
@@ -75,7 +75,7 @@
       var floor = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
         to: req.body.from,
-        from: OUR_NUMBER,
+        From: OUR_NUMBER,
         body: "Cool. One last thing. Are you a boy or a girl?" +
               "I'm not very smart, so please only respond with the word boy or girl."
       });
@@ -86,7 +86,7 @@
       var sex = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
         to: req.body.from,
-        from: OUR_NUMBER,
+        From: OUR_NUMBER,
         body: "Alright, you are ready to get your shower on." +
               "Whenever you want to take a shower just text shower to me. Have fun!"
       });
