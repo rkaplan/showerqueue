@@ -27,13 +27,14 @@
 
     // create a user object in the database
     this.createUser = function(name, number, dorm, floor, sex, callback) {
+      console.log("Creating user", dorm, floor, sex);
       this.schemas.ShowerQueue.findOne({
         dorm: dorm,
         floor: floor,
         sex: sex
       }, function(err, showerQueue) {
         if (err || !showerQueue) {
-          return callback(err);
+          return callback(err || {msg: "No such queue"});
         }
 
         var user = new this.schemas.User({
