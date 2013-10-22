@@ -42,6 +42,9 @@
         }
 
         showerQueue.queue.push(user._id);
+        showerQueue.markModified("queue");
+        showerQueue.save();
+
         return callback(null, {
           queuePos: showerQueue.queue.length()
         });
@@ -103,7 +106,7 @@
     return function(callback){
       schemas.User.findOne({_id: id}, function(err, user){
         if (err || !user){
-          return callback({err: "No User"});
+          return callback({msg: "Error: no user found."});
         }
         return callback(null, user.name);
       });
