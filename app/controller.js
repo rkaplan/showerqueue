@@ -63,7 +63,7 @@
         showerQueue.save();
 
         return callback(null, {
-          queuePos: showerQueue.queue.length(),
+          queuePos: showerQueue.queue.length,
           capacity: showerQueue.capacity
         });
       });
