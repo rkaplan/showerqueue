@@ -5,16 +5,19 @@
    * Module dependencies.
    */
 
-  var express = require('express'),
-      routes  = require('./routes').routes,
-      user    = require('./routes/user'),
-      http    = require('http'),
-      schemas = require("./app/schemas.js"),
-      conf    = require('nconf').argv().env().file({file: __dirname + '/config.json'}),
-      _       = require("underscore"),
-      path    = require('path');
+  var express   = require('express'),
+      routes    = require('./routes').routes,
+      user      = require('./routes/user'),
+      http      = require('http'),
+      schemas   = require("./app/schemas.js"),
+      mongoose  = require("mongoose"),
+      conf      = require('nconf').argv().env().file({file: __dirname + '/config.json'}),
+      _         = require("underscore"),
+      path      = require('path');
 
   var app = express();
+
+  mongoose.connect(conf.get("mongo"));
 
   // all environments
   app.set('port', process.env.PORT || 3000);
