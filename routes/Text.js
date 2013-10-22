@@ -27,9 +27,11 @@
             if (err){
               return next(err);
             }
-            var message = "Awesome! You are " + data.queuePos + " in line. I'll let you know when a shower is ready.";
+            var message = "Awesome! You are #" + (data.queuePos - data.capacity) +
+                          " in line. I'll let you know when a shower is ready.";
             if (data.queuePos <= data.capacity){
-              message = "It's your lucky day! There's an open shower, and it's all yours now. Have fun!";
+              message = "It's your lucky day! There's an open shower, and it's all yours now. Have fun!" +
+                        " Please remember to text me done when you're done, so I can keep the line moving.";
             }
             twilio.sendMessage({
               to: number,
@@ -47,11 +49,14 @@
               from: OUR_NUMBER,
               body: "Thanks. Have a nice day!"
             });
-            twilio.sendMessage({
-              to: nextUser.phoneNumber,
-              from: OUR_NUMBER,
-              body: "Good news! It's your turn to shower! Please remember to text me 'done' when you're done, so I can keep the line moving."
-            });
+            if (nextUser){
+              // somebody else can now shower
+              twilio.sendMessage({
+                to: nextUser.phoneNumber,
+                from: OUR_NUMBER,
+                body: "Good news! It's your turn to shower! Please remember to text me 'done' when you're done, so I can keep the line moving."
+              });
+            }
           });
         } else {
           twilio.sendMessage({
