@@ -18,7 +18,7 @@
     console.log("happening", req._schemas);
     var controller = new Controller(req._schemas);
 
-    var number = req.body.number;
+    var number = req.body.From;
     controller.numberExists(number, function(err, isUser){
       if (isUser){
         var body = req.body.Body.replace(/\s+/g, '');
