@@ -39,8 +39,8 @@
     if (_.isUndefined(state) || _.isNull(state)){
       console.log("no state", req.body.Body);
       twilio.sendMessage({
-        to: req.body.from,
-        From: OUR_NUMBER,
+        to: req.body.From,
+        from: OUR_NUMBER,
         body: "Welcome to the Shower Master. What's your name?"
       }, function(err){
         console.log("sent", err);
@@ -50,7 +50,7 @@
       console.log("name", req.body.Body);
       var name = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
-        to: req.body.from,
+        to: req.body.From,
         from: OUR_NUMBER,
         body: "Awesome. Nice to meet you " + name + ". I'm THE SHOWER MASTER." +
               "Let's get this started. What dorm are you in?"
@@ -64,8 +64,8 @@
       console.log("dorm", req.body.Body);
       var dorm = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
-        to: req.body.from,
-        From: OUR_NUMBER,
+        to: req.body.From,
+        from: OUR_NUMBER,
         body: "Nice!" + dorm + " is pretty cool. What floor you on bro?"
       });
       cookie.state     = "floor";
@@ -74,8 +74,8 @@
       console.log("floor", req.body.Body);
       var floor = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
-        to: req.body.from,
-        From: OUR_NUMBER,
+        to: req.body.From,
+        from: OUR_NUMBER,
         body: "Cool. One last thing. Are you a boy or a girl?" +
               "I'm not very smart, so please only respond with the word boy or girl."
       });
@@ -85,8 +85,8 @@
       console.log("sex", req.body.Body);
       var sex = req.body.Body.replace(/\s+/g, '');
       twilio.sendMessage({
-        to: req.body.from,
-        From: OUR_NUMBER,
+        to: req.body.From,
+        from: OUR_NUMBER,
         body: "Alright, you are ready to get your shower on." +
               "Whenever you want to take a shower just text shower to me. Have fun!"
       });
