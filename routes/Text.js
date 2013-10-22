@@ -37,7 +37,7 @@
     console.log("got text", cookie.state);
     // remove all whitespace from the body
     if (_.isUndefined(state) || _.isNull(state)){
-      console.log("no state");
+      console.log("no state", req.body.Body);
       twilio.sendMessage({
         to: req.body.from,
         From: OUR_NUMBER,
