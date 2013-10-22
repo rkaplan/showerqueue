@@ -49,7 +49,7 @@
 
         user.save(callback);
       });
-    }
+    };
 
     // put the user in line for a shower
     this.enqueueUser = function(userNumber, callback) {
@@ -66,8 +66,8 @@
           queuePos: showerQueue.queue.length(),
           capacity: showerQueue.capacity
         });
-      })
-    }
+      });
+    };
 
     // remove the user from the shower queue (called when the user is done with their shower)
     // and pass the user who's up next for showering to the callback
@@ -79,10 +79,10 @@
         }
         
         var userIndex = showerQueue.queue.indexOf(user._id, 1);
-        if (userIndex == -1) {
+        if (userIndex === -1) {
           return callback({
             msg: "Error: user " + user._id + " is not currently in the shower queue."
-          })
+          });
         }
 
         showerQueue.queue.splice(userIndex, 1); // remove the user from the queue
@@ -93,16 +93,16 @@
           var nextUserId = showerQueue.queue[showerQueue.capacity - 1];
           self.schemas.User.findOne({ _id: nextUserId }, function(err, user) {
             if (err || !user) {
-              return callback(err)
+              return callback(err);
             }
             return callback(null, user);
-          })
+          });
         }
         else {
           return callback(null);
         }
       });
-    }
+    };
 
     // get the names of everyone in the same ShowerQueue as the user with phone number userNumber
     this.getNamesInShowerQueue = function(userNumber, callback) {
@@ -117,8 +117,8 @@
         }
         async.parallel(parallel_arr, callback);
       });
-    }
-  } 
+    };
+  };
   
   // returns a function that will get the user's name from their object id
   getUserName = function(schemas, id){
@@ -129,16 +129,16 @@
         }
         return callback(null, user.name);
       });
-    }
+    };
   };
 
   // call callback with parameters user and showerQueue
   getUserAndShowerQueue = function(schemas, userNumber, callback) {
     schemas.User.findOne({
-        number: userNumber
+        phoneNumber: userNumber
       }, function(err, user) {
         if (err || !user) {
-          return callback(err);
+          return callback({msg: "No such user"});
         }
         console.log("getting", user.showerQueue);
         schemas.ShowerQueue.findOne({
@@ -151,6 +151,5 @@
           return callback(null, user, showerQueue);
         });
       });
-  }
-
-})();
+  };
+}());
