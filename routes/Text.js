@@ -1,7 +1,7 @@
 (function(){
   "use strict";
   var _          = require("underscore"),
-      //Controller = require("Controller"),
+      Controller = require("../app/controller.js"),
       twilio     = require("twilio"),
       conf       = require('nconf').argv().env().file({file: __dirname + '/../config.json'}),
 
@@ -15,17 +15,17 @@
   twilio = twilio(conf.get("twilio:accountId"), conf.get("twilio:authToken"));
 
   handlePost = function(req, res, next){
-    //var controller = new Controller(req._schemas);
+    var controller = new Controller(req._schemas);
 
     var number = req.body.number;
     var isUser = false;
-    //controller.numberExists(number, function(err, isUser){
+    controller.numberExists(number, function(err, isUser){
       if (isUser){
 
       } else {
         return createUser(req, res, next);
       }
-    //});
+    });
   };
 
   createUser = function(req, res, next){
@@ -109,9 +109,10 @@
   };
 
   setupUser = function(req, res, next){
-    var cookie = req.cookies.shower, user;
-    var sex    = req.body.Body.replace(/\s+/g, '');
-    sex        = sex.toUpperCase();
+    var controller = new Controller(req._schemas);
+    var cookie     = req.cookies.shower, user;
+    var sex        = req.body.Body.replace(/\s+/g, '');
+    sex            = sex.toUpperCase();
     if (sex === "BOY"){
       twilio.sendMessage({
         to: req.body.From,
@@ -121,9 +122,11 @@
       });
       cookie.user.sex = "boy";
       user = cookie.user;
-      console.log("Creating user", user);
-      res.clearCookie("shower");
-      return res.send("Hello");
+      controller.createUser(user.name, req.body.From, user.dorm, user.floor, user.sex, function(err, user){
+        console.log("made user", err, user);
+        res.clearCookie("shower");
+        return res.send("Hello");
+      });
     } else if (sex === "GIRL"){
       twilio.sendMessage({
         to: req.body.From,
@@ -133,9 +136,11 @@
       });
       cookie.user.sex = "girl";
       user = cookie.user;
-      console.log("Creating user", user);
-      res.clearCookie("shower");
-      return res.send("Hello");
+      controller.createUser(user.name, req.body.From, user.dorm, user.floor, user.sex, function(err, user){
+        console.log("made user", err, user);
+        res.clearCookie("shower");
+        return res.send("Hello");
+      });
     } else {
       twilio.sendMessage({
         to: req.body.From,
