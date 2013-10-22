@@ -89,7 +89,7 @@
         showerQueue.markModified("queue");
         showerQueue.save();
 
-        if (showerQueue.queue.length() >= showerQueue.capacity) { // someone who was waiting can now shower
+        if (showerQueue.queue.length >= showerQueue.capacity) { // someone who was waiting can now shower
           var nextUserId = showerQueue.queue[showerQueue.capacity - 1];
           self.schemas.User.findOne({ _id: nextUserId }, function(err, user) {
             if (err || !user) {
