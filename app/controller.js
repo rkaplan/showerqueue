@@ -10,6 +10,21 @@
   module.exports = function(schemas) {
     this.schemas = schemas;
 
+    // check if a user exists in the database with number phoneNumber
+    this.numberExists = function(number, callback) {
+      this.schemas.User.findOne({ phoneNumber: number }, function(err, user) {
+        if (err) {
+          return callback(err);
+        }
+        if (!user) {
+          return callback(null, false);
+        }
+        else {
+          return callback(null, true);
+        }
+      })
+    }
+
     // create a user object in the database
     this.createUser = function(name, number, dorm, floor, sex, callback) {
       this.schemas.ShowerQueue.findOne({
