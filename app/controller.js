@@ -1,0 +1,134 @@
+(function(){
+  "use strict";
+
+  var _     = require("underscore"),
+      async = require("async"),
+
+      getUserName,
+      getUserAndShowerQueue;
+
+  module.exports = function(schemas) {
+    this.schemas = schemas;
+
+    // create a user object in the database
+    this.createUser = function(name, number, dorm, floor, sex, callback) {
+      this.schemas.ShowerQueue.findOne({
+        dorm: dorm,
+        floor: floor,
+        sex: sex
+      }, function(err, showerQueue) {
+        if (err || !showerQueue) {
+          return callback(err);
+        }
+
+        var user = new this.schemas.User({
+          name: name,
+          phoneNumber: number,
+          dorm: dorm,
+          floor: floor,
+          sex: sex,
+          showerQueue: showerQueue._id
+        });
+
+        user.save(callback);
+      });
+    }
+
+    // put the user in line for a shower
+    this.enqueueUser = function(userNumber, callback) {
+      getUserAndShowerQueue(this.schemas, userNumber, function(err, user, showerQueue) {
+        if (err) {
+          return callback(err);
+        }
+
+        showerQueue.queue.push(user._id);
+        return callback(null, {
+          queuePos: showerQueue.queue.length()
+        });
+      })
+    }
+
+    // remove the user from the shower queue (called when the user is done with their shower)
+    // and pass the user who's up next for showering to the callback
+    this.dequeueUser = function(userNumber, callback) {
+      getUserAndShowerQueue(this.schemas, userNumber, function(err, user, showerQueue) {
+        if (err) {
+          return callback(err);
+        }
+        
+        var userIndex = showerQueue.queue.indexOf(user._id, 1);
+        if (userIndex == -1) {
+          return callback({
+            msg: "Error: user " + user._id + " is not currently in the shower queue."
+          })
+        }
+
+        showerQueue.queue.splice(userIndex, 1); // remove the user from the queue
+        showerQueue.markModified("queue");
+        showerQueue.save();
+
+        if (showerQueue.queue.length() >= showerQueue.capacity) { // someone who was waiting can now shower
+          var nextUserId = showerQueue.queue[showerQueue.capacity - 1];
+          this.schemas.User.findOne({ _id: nextUserId }, function(err, user) {
+            if (err || !user) {
+              return callback(err)
+            }
+            return callback(null, user);
+          })
+        }
+        else {
+          return callback(null);
+        }
+      });
+    }
+
+    // get the names of everyone in the same ShowerQueue as the user with phone number userNumber
+    this.getNamesInShowerQueue = function(userNumber, callback) {
+      getUserAndShowerQueue(this.schemas, userNumber, function(err, user, showerQueue) {
+        if (err) {
+          return callback(err);
+        }
+
+        var parallel_arr = [];
+        for (var i = 0; i < showerQueue.length; i++){
+          parallel_arr.push(getUserName(this.schemas, showerQueue[i]));
+        }
+        async.parallel(parallel_arr, callback);
+      });
+    }
+  } 
+  
+  // returns a function that will get the user's name from their object id
+  getUserName = function(schemas, id){
+    return function(callback){
+      schemas.User.findOne({_id: id}, function(err, user){
+        if (err || !user){
+          return callback({err: "No User"});
+        }
+        return callback(null, user.name);
+      });
+    }
+  };
+
+  // call callback with parameters user and showerQueue
+  getUserAndShowerQueue = function(schemas, userNumber, callback) {
+    schemas.User.findOne({
+        number: userNumber
+      }, function(err, user) {
+        if (err || !user) {
+          return callback(err);
+        }
+
+        schemas.ShowerQueue.findOne({
+          _id: user.showerQueue
+        }, function(err, showerQueue) {
+          if (err || !showerQueue) {
+            return callback(err);
+          }
+
+          return callback(null, user, showerQueue);
+        });
+      });
+  }
+
+})();
