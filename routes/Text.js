@@ -28,7 +28,7 @@
   };
 
   createUser = function(req, res, next){
-    var cookie = req.cookies.shower, state;
+    var cookie = req.cookies.shower, state, user;
     if (!cookie){
       cookie = {};
     } else {
@@ -56,7 +56,7 @@
               "Let's get this started. What dorm are you in?"
       });
       cookie.state = "dorm";
-      var user = {
+      user = {
         name: name
       };
       cookie.user = user;
@@ -91,7 +91,11 @@
           body: "Alright man, you're ready to get your shower on." +
                 "Whenever you want to take a shower just text shower to me. Have fun!"
         });
-        console.log("Creating user", cookie.user);
+        cookie.user.sex = "boy";
+        user = cookie.user;
+        console.log("Creating user", user);
+        res.clearCookie("shower");
+        return res.send("Hello");
       } else if (sex === "GIRL"){
         twilio.sendMessage({
           to: req.body.From,
@@ -99,6 +103,11 @@
           body: "Alright girl, you're ready to get your shower on." +
                 "Whenever you want to take a shower just text shower to me. Have fun!"
         });
+        cookie.user.sex = "girl";
+        user = cookie.user;
+        console.log("Creating user", user);
+        res.clearCookie("shower");
+        return res.send("Hello");
       } else {
         twilio.sendMessage({
           to: req.body.From,
